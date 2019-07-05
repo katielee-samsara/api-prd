@@ -232,11 +232,10 @@
     },
     "SpeedEcu": {
       "type": "object",
+      "description": "Speed of the vehicle, as read from the vehicle ECU, in RPM",
       "required": ["time", "value"],
       "properties": {
         "percent": {
-          "description":
-            "Speed of the vehicle, as read from the vehicle ECU, in RPM.",
           "type": "number",
           "format": "int64",
           "example": 1585
@@ -408,14 +407,14 @@
       }
     },
     "OilLife": {
-      "description": "Oil Life??",
+      "description": "Oil Life Percentage",
       "type": "object",
       "required": ["time", "value"],
       "properties": {
-        "??": {
+        "percentage": {
           "type": "number",
           "format": "float",
-          "example": 89
+          "example": 64
         },
         "time": {
           "$ref": "#/definitions/time"
@@ -423,7 +422,7 @@
       }
     },
     "OutsideTemp": {
-      "description": "Temperature outside the vehicle, as measured by ????.",
+      "description": "Temperature outside the vehicle.",
       "type": "object",
       "required": ["time", "value"],
       "properties": {
