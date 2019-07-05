@@ -421,8 +421,8 @@
         }
       }
     },
-    "OutsideTemp": {
-      "description": "Temperature outside the vehicle.",
+    "AmbientAirTemp": {
+      "description": "Ambient air temperature of the vehicle.",
       "type": "object",
       "required": ["time", "value"],
       "properties": {
@@ -518,8 +518,8 @@
         "engineCoolantTemp": {
           "$ref": "#/definitions/EngineCoolantTemp"
         },
-        "outsideTemp": {
-          "$ref": "#/definitions/OutsideTemp"
+        "ambientAirTemp": {
+          "$ref": "#/definitions/AmbientAirTemp"
         },
         "parkingBrake": {
           "$ref": "#/definitions/ParkingBrake"
