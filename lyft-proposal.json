@@ -1,0 +1,700 @@
+{
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "schemes": ["https"],
+  "swagger": "2.0",
+  "info": {
+    "description": "Description.",
+    "title": "Samsara API",
+    "version": "2.0.0"
+  },
+  "host": "api.samsara.com",
+  "paths": {
+    "/fleet/vehicles/stats": {
+      "get": {
+        "description":
+          "This endpoint allows you to both fetch historical information for a set of vehicles, as well as a feed of all new vehicle  information.\n\nIf you wish to just fetch the historical data for a vehicle, you can pass in a `startTime` and `endTime` range. This will return all known states for a vehicle during a  given time range. In other words, this will return all data point readings for each vehicle between the given time range, and often one data point before the `startTime` range that represents the state of the vehicle in the first time segment. As an example, if you are looking to fetch all engine states between `t=4`and `t=10`, and the engine is `OFF` between time 3-6 and `IDLE` from 6-10, then the endpoint will return both the `OFF` and `IDLE` states.\n\nIf an `endTime` is not provided, then this will provide a continuous feed of all data points. In order to follow the feed, you can follow the pagination `hasNextPage` cursor continuously. If there is not yet a `hasNextPage=true` for the feed follow, then we recommend you wait and retry in 5 seconds.",
+        "tags": ["Vehicles"],
+        "summary": "Fetch vehicle data",
+        "operationId": "listVehicleGaugeHistory",
+        "parameters": [
+          {
+            "maximum": 10000,
+            "minimum": 50,
+            "type": "integer",
+            "format": "int64",
+            "description":
+              "The limit for how many objects will be in the response. This will default to 250 if not explicitly provided.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "The cursor position to use to return results after.",
+            "name": "after",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "A start time in RFC 3339 format. Defaults to now if not provided.",
+            "name": "startTime",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "An end time in RFC 3339 format. Defaults to infinity if not provided.",
+            "name": "endTime",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "A comma delimited list of tagIds.",
+            "name": "tagIds",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "A comma delimited list of vehicleIds",
+            "name": "vehicleIds",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "ignition",
+              "fuel-percent",
+              "fuel-consumption",
+              "oil",
+              "battery",
+              "odometer",
+              "running-time",
+              "tire-pressure",
+              "barometer",
+              "rpm"
+            ],
+            "type": "string",
+            "description":
+              "Comma-separated list of diagnostics information to return. Defaults to returning fuel and odometer information. All entries will include the GPS location for the time at which the value was recorded, if available. Example: gauges=fuel,odometer",
+            "name": "diagnostics",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all diagnostics data points for the specified vehicles and time range.",
+            "schema": {
+              "$ref": "#/definitions/VehicleGaugesListHistoryResponse"
+            }
+          }
+        }
+      }
+    },
+    "/fleet/vehicles/locations": {
+      "get": {
+        "description":
+          "This endpoint allows you to both fetch historical locations for a vehicle, as well as a feed of all new vehicle locations.\n\nIf you wish to just fetch the historical location data for a vehicle, you can pass in a `startTime` and `endTime` range. This will return all known locations for a vehicle during a given time range. In other words, this will return all known locations for each vehicle between the given time range, and often one data point before the `startTime` range. As an example, if you are looking to fetch all locations between `t=4`and `t=6`, and we get location reading at t=3, t=5, and t=6, then the endpoint will return both location datapoints for all three readings to help you interpolate for t=4.\n\nIf an `endTime` is not provided, then this will provide a continuous feed of all vehicle locations. In order to follow the feed, you can follow the pagination `hasNextPage` cursor continuously.  If there is not yet a `hasNextPage=true` for the feed follow, then we recommend you wait and retry in 5 seconds.",
+        "tags": ["Vehicles"],
+        "summary": "Fetch vehicle locations",
+        "operationId": "listVehicleLocationsHistory",
+        "parameters": [
+          {
+            "maximum": 10000,
+            "minimum": 50,
+            "type": "integer",
+            "format": "int64",
+            "description":
+              "The limit for how many objects will be in the response. This will default to 250 if not explicitly provided.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "The cursor position to use to return results after.",
+            "name": "after",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "A start time in RFC 3339 format. Defaults to now if not provided.",
+            "name": "startTime",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "An end time in RFC 3339 format. Defaults to infinity if not provided.",
+            "name": "endTime",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "A comma delimited list of tagIds.",
+            "name": "tagIds",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "A comma delimited list of vehicleIds",
+            "name": "vehicleIds",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all locations for the specified vehicles and time range.",
+            "schema": {
+              "$ref": "#/definitions/VehicleLocationsListResponse"
+            }
+          }
+        }
+      }
+    },
+    "/fleet/harsh-events": {
+      "get": {
+        "description": "Fetch all harsh events for the organization in a given time period.",
+        "tags": ["Safety"],
+        "summary": "Fetch all harsh events",
+        "operationId": "getOrgHarshEvents",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "string",
+            "description": "Beginning of the time range, specified in RFC 3339 time.",
+            "name": "startTime",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "string",
+            "description": "End of the time range, specified in RFC 3339 time.",
+            "name": "endTime",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Harsh events for the organization",
+            "schema": {
+              "$ref": "#/definitions/OrgHarshEventsResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BatteryVoltage": {
+      "description": "Battery voltage reported in millivolts.",
+      "type": "object",
+      "required": ["time", "millivolts"],
+      "properties": {
+        "millivolts": {
+          "description": "The battery voltage level, measured in millivolts.",
+          "type": "number",
+          "format": "int64",
+          "example": 13500
+        },
+        "time": {
+          "$ref": "#/definitions/time"
+        }
+      }
+    },
+    "EngineState": {
+      "description": "The state of the engine at a particular point in time. State can be Running, Off, or Idle.",
+      "type": "object",
+      "required": ["time", "state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["Running", "Off", "Idle"]
+        },
+        "time": {
+          "$ref": "#/definitions/time"
+        }
+      }
+    },
+    "FuelPercent": {
+      "description": "Fuel percent over time reported in decimal percent of available fuel.",
+      "type": "object",
+      "required": ["time", "percent"],
+      "properties": {
+        "percent": {
+          "description":
+            "The decimal percent of fuel available for this vehicle. A full gas tank will report 100 while an empty tank will be 0.",
+          "type": "number",
+          "format": "int64",
+          "example": 79
+        },
+        "time": {
+          "$ref": "#/definitions/time"
+        }
+      }
+    },
+    "SpeedEcu": {
+      "type": "object",
+      "required": ["time", "value"],
+      "properties": {
+        "percent": {
+          "description":
+            "Speed of the vehicle, as read from the vehicle ECU, in RPM.",
+          "type": "number",
+          "format": "int64",
+          "example": 1585
+        },
+        "time": {
+          "$ref": "#/definitions/time"
+        }
+      }  
+    },
+    "LocationsWrapper": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "vehicle": {
+              "$ref": "#/definitions/VehicleTinyResponse"
+            },
+            "speedGps": {
+              "description": "Speed of the vehicle, as calculated by the GPS, in miles per hour.",
+                "type": "number",
+                "format": "int64",
+                "example": 79
+            },
+            "time": {
+              "$ref": "#/definitions/time"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/location"
+        }
+      ]
+    },
+    "NumericalReading": {
+      "description": "A sensor reading value.",
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "name": {
+          "description": "Name of the sensor value.",
+          "type": "string",
+          "example": "112"
+        },
+        "value": {
+          "description": "Value of the reading.",
+          "type": "string",
+          "example": "112"
+        }
+      }
+    },
+    "OdometerSeries": {
+      "description": "A listing of odometer history over time",
+      "type": "object",
+      "required": ["meters", "time"],
+      "properties": {
+        "meters": {
+          "description": "A combined odometer reading based on GPS and engine odometer data.",
+          "type": "number",
+          "format": "int64",
+          "example": 30949885
+        },
+        "time": {
+          "$ref": "#/definitions/time"
+        }
+      }
+    },
+    "OrgHarshEventsResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "behaviorLabels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "labelSource": {
+                      "description": "Label source of the harsh event",
+                      "type": "string",
+                      "format": "string",
+                      "example": "SYSTEM"
+                    },
+                    "labelType": {
+                      "description": "Label type of the harsh event",
+                      "type": "string",
+                      "format": "string",
+                      "example": "Braking"
+                    }
+                  }
+                }
+              },
+              "downloadForwardVideoUrl": {
+                "description": "Download forward video url",
+                "type": "string",
+                "format": "string",
+                "example":
+                  "samsara-dashcam-videos::3318/222/1499411220000/huKA7IhpBV-camera-video-segment-1244214895.mp4"
+              },
+              "downloadInwardVideoUrl": {
+                "description": "Download inward video url",
+                "type": "string",
+                "format": "string",
+                "example":
+                  "samsara-dashcam-videos::3318/222/1499411220000/huKA7IhpBV-camera-video-segment-1244214895.mp4"
+              },
+              "downloadTrackedInwardVideoUrl": {
+                "description": "Download tracked inward video url",
+                "type": "string",
+                "format": "string",
+                "example":
+                  "samsara-dashcam-videos::3318/222/1499411220000/huKA7IhpBV-camera-video-segment-1244214895.mp4"
+              },
+              "incidentReportUrl": {
+                "description": "Incident report url",
+                "type": "string",
+                "format": "string",
+                "example":
+                  "https://cloud.samsara.com/groups/4185/fleet/reports/safety/vehicle/222/incident/1499411220000"
+              },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "description": "Longitude at which the harsh event happened",
+                    "type": "number",
+                    "format": "float",
+                    "example": 37.762554666
+                  },
+                  "longitude": {
+                    "description": "Longitude at which the harsh event happened",
+                    "type": "number",
+                    "format": "float",
+                    "example": -122.409358166
+                  }
+                }
+              },
+              "acceleration": {
+                "type": "object",
+                "properties": {
+                  "x-axis": {
+                    "description": "Acceleration in x axis, in g-units",
+                    "type": "number",
+                    "format": "float",
+                    "example": 1.44
+                  },
+                  "y-axis": {
+                    "description": "Acceleration in y axis, in g-units",
+                    "type": "number",
+                    "format": "float",
+                    "example": 0.44
+                  },
+                  "z-axis": {
+                    "description": "Acceleration in z axis, in g-units",
+                    "type": "number",
+                    "format": "float",
+                    "example": 0.19
+                  },
+                }
+              }
+            }
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/paginationResponse"
+        }
+      }
+    },
+    "OilLife": {
+      "description": "Oil Life??",
+      "type": "object",
+      "required": ["time", "value"],
+      "properties": {
+        "??": {
+          "type": "number",
+          "format": "float",
+          "example": 89
+        },
+        "time": {
+          "$ref": "#/definitions/time"
+        }
+      }
+    },
+    "OutsideTemp": {
+      "description": "Temperature outside the vehicle, as measured by ????.",
+      "type": "object",
+      "required": ["time", "value"],
+      "properties": {
+        "fahrenheit": {
+          "type": "number",
+          "format": "float",
+          "example": 89
+        },
+        "time": {
+          "$ref": "#/definitions/time"
+        }
+      }
+    },
+    "EngineCoolantTemp": {
+      "description": "Temperature of the engine coolant",
+      "type": "object",
+      "required": ["time", "value"],
+      "properties": {
+        "fahrenheit": {
+          "type": "number",
+          "format": "float",
+          "example": 136.98
+        },
+        "time": {
+          "$ref": "#/definitions/time"
+        }
+      }
+    },
+    "ParkingBrake": {
+      "description": "`true` when the parking brake is engaged; `false` when the parking brake is disengaged.",
+      "type": "object",
+      "required": ["time", "value"],
+      "properties": {
+        "time": {
+          "$ref": "#/definitions/time"
+        },
+        "value": {
+          "type": "boolean",
+          "example": true
+        }
+      }
+    },
+    "TirePressure": {
+      "description": "Tire pressure of each wheel, in PSI.",
+      "type": "object",
+      "properties": {
+        "front left": {
+          "type": "number",
+          "format": "float",
+          "example": 39
+        },
+        "front right": {
+          "type": "number",
+          "format": "float",
+          "example": 38
+        },
+        "rear left": {
+          "type": "number",
+          "format": "float",
+          "example": 39
+        },
+        "rear right": {
+          "type": "number",
+          "format": "float",
+          "example": 36
+        },
+        "time" :{
+          "$ref": "#/definitions/time"
+        }
+      }
+    },
+    "VehicleGaugeHistory": {
+      "type": "object",
+      "properties": {
+        "fuelPercent": {
+          "$ref": "#/definitions/FuelPercent"
+        },
+        "ignition": {
+          "$ref": "#/definitions/EngineState"
+        },
+        "odometer": {
+          "$ref": "#/definitions/OdometerSeries"
+        },
+        "speedECU": {
+          "$ref": "#/definitions/SpeedEcu"
+        },
+        "oilLife": {
+          "$ref": "#/definitions/OilLife"
+        },
+        "batteryVoltage": {
+          "$ref": "#/definitions/BatteryVoltage"
+        },
+        "engineCoolantTemp": {
+          "$ref": "#/definitions/EngineCoolantTemp"
+        },
+        "outsideTemp": {
+          "$ref": "#/definitions/OutsideTemp"
+        },
+        "parkingBrake": {
+          "$ref": "#/definitions/ParkingBrake"
+        },
+        "tirePressure": {
+          "$ref": "#/definitions/TirePressure"
+        }
+      }
+    },
+    "VehicleGaugesHistoryWrapper": {
+      "type": "object",
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "vehicle": {
+              "$ref": "#/definitions/VehicleTinyResponse"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/VehicleGaugeHistory"
+        }
+      ]
+    },
+    "VehicleGaugesListHistoryResponse": {
+      "description": "List of vehicle stats for the specified time period.",
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VehicleGaugesHistoryWrapper"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/paginationResponse"
+        }
+      }
+    },
+    "VehicleLocationsListResponse": {
+      "description": "List of vehicle locations for the specified time period.",
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LocationsWrapper"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/paginationResponse"
+        }
+      }
+    },
+    "VehicleTinyResponse": {
+      "description": "A tiny vehicle response object.",
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "description": "Unique Samsara ID for the vehicle.",
+          "type": "string",
+          "example": "112"
+        },
+        "name": {
+          "description": "Name of the vehicle in the Samsara dashboard.",
+          "type": "string",
+          "example": "112"
+        }
+      }
+    },
+    "location": {
+      "description": "Location object",
+      "type": "object",
+      "required": ["latitude", "longitude"],
+      "properties": {
+        "addresses": {
+          "description":
+            "Array of address mini-objects, in which the given lat/long coordinates falls within the address's geofence borders. If the location is not within any geofence, then this value will not appear",
+          "type": "array",
+          "items": {
+            "description": "Address book entry, if one exists",
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "Address book identifier",
+                "type": "string",
+                "example": "123"
+              },
+              "name": {
+                "description": "Name of this address book entry",
+                "type": "string",
+                "example": "Main Distribution Warehouse"
+              }
+            }
+          }
+        },
+        "latitude": {
+          "description": "GPS latitude represented in degrees",
+          "type": "number",
+          "format": "double",
+          "example": 122.142
+        },
+        "longitude": {
+          "description": "GPS longitude represented in degrees",
+          "type": "number",
+          "format": "double",
+          "example": -93.343
+        }
+      }
+    },
+    "paginationResponse": {
+      "description": "Pagination parameters.",
+      "type": "object",
+      "properties": {
+        "endCursor": {
+          "description":
+            "Cursor identifier representing the last element in the response. This value should be used in conjunction with a subsequent request's 'starting_after' query parameter.",
+          "type": "string",
+          "format": "string",
+          "example": "cmVhyI"
+        },
+        "hasNextPage": {
+          "description": "True if there are more pages of results after this response.",
+          "type": "boolean",
+          "example": true
+        },
+        "nextPageURL": {
+          "description":
+            "URL for retrieving the next page of results. If present, this URL will contain the next page of results.",
+          "type": "string",
+          "format": "string",
+          "example": "https://api.samsara.com/fleet/vehicles/engine-gauge-history\u0026after=cmVhyI"
+        }
+      }
+    },
+    "time": {
+      "description": "UTC timestamp in RFC3339 milliseconds format.",
+      "type": "string",
+      "example": "2019-05-03T04:30:31.492Z"
+    }
+  },
+  "parameters": {
+    "diagnosticsParam": {
+      "enum": [
+        "ignition",
+        "fuel-percent",
+        "fuel-consumption",
+        "oil",
+        "battery",
+        "odometer",
+        "running-time",
+        "tire-pressure",
+        "barometer",
+        "rpm"
+      ],
+      "type": "string",
+      "description":
+        "Comma-separated list of diagnostics information to return. Defaults to returning fuel and odometer information. All entries will include the GPS location for the time at which the value was recorded, if available. Example: gauges=fuel,odometer",
+      "name": "diagnostics",
+      "in": "query"
+    }
+  },
+  "tags": [
+    {
+      "description":
+        "The vehicle object describes a vehicle's attributes and settings within Samsara. A vehicle is generated in the Samsara platform when a vehicle gateway is installed. The gateway often auto-populates information such as the VIN, make, model, and year.\n\nThe vehicle object is often referenced in other objects. For these references, you will see a mini-object of the vehicle, rather than the full vehicle information. The mini-object encompasses a smaller subset of commonly-referenced field, such as the Samsara ID, name, and external ID.",
+      "name": "Vehicles"
+    },
+    {
+      "description":
+        "Samsara provides you with more visibility on whether or not your fleets are being safe. With the collection of safety endpoints, you can get aggregate metrics around the performance of a particular driver or vehicle, as well as detailed logs of all the harsh events that take place in an organization.",
+      "name": "Safety"
+    }
+  ]
+}
